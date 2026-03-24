@@ -2,7 +2,6 @@ fastapi
 uvicorn
 streamlit
 gtts
-pydub
 transformers
 torch
 accelerate
