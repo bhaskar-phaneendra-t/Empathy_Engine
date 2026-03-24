@@ -47,7 +47,7 @@ if st.button("Generate Audio"):
             st.error(str(e))
 
 
-# 🔥 ALWAYS RENDER
+#  ALWAYS RENDER
 if st.session_state.audio_bytes:
     st.audio(st.session_state.audio_bytes, format="audio/mp3")
 

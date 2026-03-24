@@ -37,21 +37,21 @@ class TTSService:
             filename = f"{emotion}_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.mp3"
             file_path = os.path.join("output_audio", filename)
 
-            # 🔥 STEP 1: Generate base audio
+            #  STEP 1: Generate base audio
             tts = gTTS(text=text, lang='en')
             tts.save(file_path)
 
-            # 🔥 STEP 2: Load audio
+            #  STEP 2: Load audio
             audio = AudioSegment.from_file(file_path)
 
-            # 🔥 STEP 3: Apply volume
+            #  STEP 3: Apply volume
             audio = audio + params.get("volume", 0)
 
-            # 🔥 STEP 4: Apply pitch
+            #  STEP 4: Apply pitch
             pitch = params.get("pitch", 0)
             audio = self.change_pitch(audio, pitch)
 
-            # 🔥 STEP 5: Save final
+            #  STEP 5: Save final
             audio.export(file_path, format="mp3")
 
             logger.info(f"Audio generated: {file_path}")

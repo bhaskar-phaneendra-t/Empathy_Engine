@@ -39,7 +39,7 @@ def generate_audio(request: TextRequest):
         text = request.text
         logger.info(f"Received request: {text}")
 
-        # 🔥 Emotion only
+        #  Emotion only
         result = emotion_service.detect_emotion(text)
 
         emotion = result["emotion"]
@@ -47,10 +47,10 @@ def generate_audio(request: TextRequest):
 
         logger.info(f"Emotion: {emotion}, Confidence: {confidence}")
 
-        # 🔥 Mapping (emotion only)
+        #  Mapping (emotion only)
         params = mapping_service.get_voice_params(emotion)
 
-        # 🔥 TTS
+        #  TTS
         file_path = tts_service.generate_audio(text, params, emotion)
 
         return {

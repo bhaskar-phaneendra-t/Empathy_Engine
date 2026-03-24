@@ -22,7 +22,7 @@ class EmotionService:
             text_lower = text.lower().strip()
 
             # ---------------------------------
-            # 🔴 ANGER (TOP PRIORITY)
+            # ANGER (TOP PRIORITY)
             # ---------------------------------
             anger_keywords = [
                 "hate", "angry", "furious", "rage", "worst",
@@ -37,7 +37,7 @@ class EmotionService:
                 }
 
             # ---------------------------------
-            # 😢 SAD
+            #  SAD
             # ---------------------------------
             sad_keywords = [
                 "sad", "hurt", "pain", "cry", "depressed",
@@ -51,7 +51,7 @@ class EmotionService:
                 }
 
             # ---------------------------------
-            # 😊 GREETING / FRIENDLY
+            #  GREETING / FRIENDLY
             # ---------------------------------
             greeting_phrases = [
                 "hi", "hello", "hey",
@@ -66,7 +66,7 @@ class EmotionService:
                 }
 
             # ---------------------------------
-            # 😊 HAPPY / APPRECIATION
+            #  HAPPY / APPRECIATION
             # ---------------------------------
             happy_keywords = [
                 "thank", "thanks", "appreciate", "grateful",
@@ -80,7 +80,7 @@ class EmotionService:
                 }
 
             # ---------------------------------
-            # 😲 SURPRISE (STRICT ONLY)
+            #  SURPRISE (STRICT ONLY)
             # ---------------------------------
             surprise_keywords = [
                 "wow", "unbelievable", "shocked",
@@ -94,7 +94,7 @@ class EmotionService:
                 }
 
             # ---------------------------------
-            # ❓ QUESTIONS → NEUTRAL (LOW PRIORITY)
+            #  QUESTIONS → NEUTRAL (LOW PRIORITY)
             # ---------------------------------
             question_words = [
                 "what", "why", "how", "where", "when", "who",
@@ -108,7 +108,7 @@ class EmotionService:
                 }
 
             # ---------------------------------
-            # 🤖 AI MODEL (FINAL FALLBACK)
+            #  AI MODEL (FINAL FALLBACK)
             # ---------------------------------
             results = self.classifier(text)[0]
 
@@ -130,7 +130,7 @@ class EmotionService:
 
             emotion = mapping.get(raw_label, "neutral")
 
-            # 🔥 CRITICAL FIX: never allow surprise for normal questions
+            #  CRITICAL FIX: never allow surprise for normal questions
             if emotion == "surprised" and "?" in text_lower:
                 emotion = "neutral"
 
