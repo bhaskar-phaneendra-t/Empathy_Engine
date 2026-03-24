@@ -242,19 +242,11 @@ streamlit run streamlit_app.py
 
 ## 👨‍💻 Author
 
-**Bhaskar Phaneendra**
+**Tatapudi Bhaskar Phaneendra**
 
 ---
 
-## ⭐ Support
 
-If you like this project:
-
-* ⭐ Star the repo
-* 🍴 Fork it
-* 🚀 Improve it
-
----
 
 ## 🏁 Final Note
 
