@@ -1,5 +1,4 @@
 from transformers import pipeline
-
 from app.utils.logger import get_logger
 from app.utils.exceptions import EmotionDetectionError
 
@@ -12,85 +11,64 @@ class EmotionService:
             self.classifier = pipeline(
                 "text-classification",
                 model="j-hartmann/emotion-english-distilroberta-base",
-                top_k=3   # 🔥 important for better decisions
+                top_k=3
             )
-            logger.info("EmotionService initialized with HuggingFace model")
+            logger.info("EmotionService initialized (Hybrid Mode)")
         except Exception as e:
             raise EmotionDetectionError("Failed to load model", e)
 
     def detect_emotion(self, text: str) -> dict:
         try:
-            if not text or not text.strip():
-                raise ValueError("Empty text")
-
             text_lower = text.lower()
 
             # ---------------------------------
-            # 🔥 PRIORITY 1: GREETING (HIGHEST)
+            # 🔥 STRONG KEYWORD SIGNALS (HIGH WEIGHT)
             # ---------------------------------
-            greeting_words = [
-                "hi", "hello", "hey",
-                "good morning", "good evening", "good afternoon",
-                "happy birthday", "have a nice day", "nice to meet you"
-            ]
 
-            if any(word in text_lower for word in greeting_words):
-                return {
-                    "emotion": "happy",
-                    "confidence": 0.98
-                }
-
-            # ---------------------------------
-            # 🔥 PRIORITY 2: STRONG NEGATIVE
-            # ---------------------------------
-            angry_words = [
+            anger_words = [
                 "idiot", "stupid", "useless", "hate", "worst",
-                "dumb", "fool", "nonsense", "trash", "annoying"
+                "frustrated", "annoyed", "angry", "irritated"
             ]
 
-            if any(word in text_lower for word in angry_words):
-                return {
-                    "emotion": "angry",
-                    "confidence": 0.97
-                }
-
-            # ---------------------------------
-            # 🔥 PRIORITY 3: STRONG POSITIVE
-            # ---------------------------------
-            positive_words = [
-                "amazing", "awesome", "fantastic", "great",
-                "love", "wonderful", "excellent", "beautiful"
+            sad_words = [
+                "sad", "depressed", "hurt", "pain", "broken",
+                "lonely", "tired", "cry", "upset"
             ]
 
-            if any(word in text_lower for word in positive_words):
-                return {
-                    "emotion": "happy",
-                    "confidence": 0.95
-                }
+            happy_words = [
+                "happy", "great", "awesome", "amazing",
+                "fantastic", "love", "good", "nice"
+            ]
 
-            # ---------------------------------
-            # 🔥 PRIORITY 4: SURPRISE
-            # ---------------------------------
             surprise_words = [
                 "wow", "unbelievable", "shocking",
-                "can't believe", "incredible", "unexpected"
+                "can't believe", "unexpected", "incredible"
             ]
 
-            if any(word in text_lower for word in surprise_words):
-                return {
-                    "emotion": "surprised",
-                    "confidence": 0.95
-                }
+            # ---------------------------------
+            # 🔥 PRIORITY RULES
+            # ---------------------------------
+
+            if any(w in text_lower for w in anger_words):
+                return {"emotion": "angry", "confidence": 0.97}
+
+            if any(w in text_lower for w in sad_words):
+                return {"emotion": "sad", "confidence": 0.95}
+
+            if any(w in text_lower for w in surprise_words):
+                return {"emotion": "surprised", "confidence": 0.95}
+
+            if any(w in text_lower for w in happy_words):
+                return {"emotion": "happy", "confidence": 0.92}
 
             # ---------------------------------
-            # 🔥 AI MODEL (MAIN LOGIC)
+            # 🤖 HUGGINGFACE MODEL (MAIN BRAIN)
             # ---------------------------------
+
             results = self.classifier(text)[0]
 
-            best = max(results, key=lambda x: x["score"])
-
-            raw_label = best["label"].lower()
-            score = best["score"]
+            # Weighted scoring
+            scores = {}
 
             mapping = {
                 "joy": "happy",
@@ -102,11 +80,19 @@ class EmotionService:
                 "neutral": "neutral"
             }
 
-            emotion = mapping.get(raw_label, "neutral")
+            for r in results:
+                label = mapping.get(r["label"].lower(), "neutral")
+                score = r["score"]
+
+                scores[label] = scores.get(label, 0) + score
+
+            # Pick best
+            emotion = max(scores, key=scores.get)
+            confidence = scores[emotion]
 
             return {
                 "emotion": emotion,
-                "confidence": float(score)
+                "confidence": float(confidence)
             }
 
         except Exception as e:
