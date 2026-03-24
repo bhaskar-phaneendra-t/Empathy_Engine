@@ -1,5 +1,3 @@
-# app/services/emotion_service.py
-
 from transformers import pipeline
 
 from app.utils.logger import get_logger
@@ -14,7 +12,7 @@ class EmotionService:
             self.classifier = pipeline(
                 "text-classification",
                 model="j-hartmann/emotion-english-distilroberta-base",
-                top_k=1
+                top_k=3   # 🔥 important for better decisions
             )
             logger.info("EmotionService initialized with HuggingFace model")
         except Exception as e:
@@ -22,31 +20,77 @@ class EmotionService:
 
     def detect_emotion(self, text: str) -> dict:
         try:
+            if not text or not text.strip():
+                raise ValueError("Empty text")
+
             text_lower = text.lower()
 
-            # 🔥 HARD OVERRIDES (VERY IMPORTANT)
+            # ---------------------------------
+            # 🔥 PRIORITY 1: GREETING (HIGHEST)
+            # ---------------------------------
+            greeting_words = [
+                "hi", "hello", "hey",
+                "good morning", "good evening", "good afternoon",
+                "happy birthday", "have a nice day", "nice to meet you"
+            ]
 
-            if any(word in text_lower for word in ["sorry", "apologize"]):
-                return {"emotion": "sad", "confidence": 0.95}
+            if any(word in text_lower for word in greeting_words):
+                return {
+                    "emotion": "happy",
+                    "confidence": 0.98
+                }
 
-            if any(word in text_lower for word in ["thank", "thanks"]):
-                return {"emotion": "happy", "confidence": 0.95}
+            # ---------------------------------
+            # 🔥 PRIORITY 2: STRONG NEGATIVE
+            # ---------------------------------
+            angry_words = [
+                "idiot", "stupid", "useless", "hate", "worst",
+                "dumb", "fool", "nonsense", "trash", "annoying"
+            ]
 
-            if any(word in text_lower for word in [
-                "never give up", "you can do it", "believe", "achieve"
-            ]):
-                return {"emotion": "happy", "confidence": 0.95}
+            if any(word in text_lower for word in angry_words):
+                return {
+                    "emotion": "angry",
+                    "confidence": 0.97
+                }
 
-            if any(word in text_lower for word in [
-                "idiot", "stupid", "useless", "hate"
-            ]):
-                return {"emotion": "angry", "confidence": 0.98}
+            # ---------------------------------
+            # 🔥 PRIORITY 3: STRONG POSITIVE
+            # ---------------------------------
+            positive_words = [
+                "amazing", "awesome", "fantastic", "great",
+                "love", "wonderful", "excellent", "beautiful"
+            ]
 
-            # 🔥 AI MODEL (fallback)
-            result = self.classifier(text)[0][0]
+            if any(word in text_lower for word in positive_words):
+                return {
+                    "emotion": "happy",
+                    "confidence": 0.95
+                }
 
-            raw_label = result["label"].lower()
-            score = result["score"]
+            # ---------------------------------
+            # 🔥 PRIORITY 4: SURPRISE
+            # ---------------------------------
+            surprise_words = [
+                "wow", "unbelievable", "shocking",
+                "can't believe", "incredible", "unexpected"
+            ]
+
+            if any(word in text_lower for word in surprise_words):
+                return {
+                    "emotion": "surprised",
+                    "confidence": 0.95
+                }
+
+            # ---------------------------------
+            # 🔥 AI MODEL (MAIN LOGIC)
+            # ---------------------------------
+            results = self.classifier(text)[0]
+
+            best = max(results, key=lambda x: x["score"])
+
+            raw_label = best["label"].lower()
+            score = best["score"]
 
             mapping = {
                 "joy": "happy",
@@ -66,4 +110,5 @@ class EmotionService:
             }
 
         except Exception as e:
+            logger.error(f"Emotion detection error: {str(e)}")
             raise EmotionDetectionError("Emotion detection failed", e)
