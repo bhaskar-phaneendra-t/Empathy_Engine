@@ -1,0 +1,82 @@
+# 🔥 Python
+
+**pycache**/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# 🔥 Virtual Environment
+
+venv/
+env/
+projectenv/
+.venv/
+
+# 🔥 Logs
+
+logs/
+*.log
+
+# 🔥 Audio Outputs
+
+output_audio/
+*.mp3
+*.wav
+
+# 🔥 Environment Variables
+
+.env
+.env.*
+
+# 🔥 Jupyter Notebooks (optional)
+
+.ipynb_checkpoints/
+
+# 🔥 VS Code
+
+.vscode/
+
+# 🔥 PyCharm
+
+.idea/
+
+# 🔥 OS Files
+
+.DS_Store
+Thumbs.db
+
+# 🔥 Build / Distribution
+
+build/
+dist/
+*.egg-info/
+
+# 🔥 Cache
+
+.cache/
+*.cache
+
+# 🔥 HuggingFace Cache (VERY IMPORTANT)
+
+.cache/huggingface/
+~/.cache/huggingface/
+
+# 🔥 Temporary Files
+
+*.tmp
+*.temp
+
+# 🔥 SQLite DB (if added later)
+
+*.db
+
+# 🔥 Streamlit Cache
+
+.streamlit/
+
+# 🔥 Testing
+
+.pytest_cache/
+.coverage
+htmlcov/
